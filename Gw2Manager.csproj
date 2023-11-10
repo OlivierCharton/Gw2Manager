@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,6 +7,9 @@
     <Nullable>enable</Nullable>
     <PublishSingleFile>true</PublishSingleFile>
     <ApplicationIcon>Ref\icon.ico</ApplicationIcon>
+    <PackageIcon>icon.png</PackageIcon>
+    <Title>Gw2Manager</Title>
+    <PackageId>JapyxGw2Manager</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +26,10 @@
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Ref\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

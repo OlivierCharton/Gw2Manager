@@ -127,9 +127,13 @@ async Task Run()
             {
                 Console.WriteLine($"Suppression de {command.Name}");
 
-                if (File.Exists(command.AdditionalData))
+                try
                 {
                     File.Delete(command.AdditionalData);
+                }
+                catch (Exception)
+                {
+                    //Do Nothing, File.Exists flags program as virus ..
                 }
 
                 Console.WriteLine($"{command.Name} supprimé");
