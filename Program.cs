@@ -1,8 +1,8 @@
 ﻿using Gw2Manager.Models;
 using Gw2Manager.Utils;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using System.Diagnostics;
-using System.Net;
 
 Console.Title = "Gw2 Manager";
 
@@ -96,16 +96,11 @@ bool SelectEntry(int maxTime = -1)
 
 async Task Run()
 {
+    Console.WriteLine();
+
     foreach (var command in commands.Where(c => c.State != CommandState.Unselected).OrderBy(c => c.ListNumber))
     {
-        if (command.Type == CommandType.Url)
-        {
-            using var client = new HttpClient();
-
-            using var s = await client.GetStreamAsync(command.Data);
-            using var fs = new FileStream(command.AdditionalData, FileMode.OpenOrCreate);
-            await s.CopyToAsync(fs);
-        }
+        Console.WriteLine("---------------------");
         if (command.Type == CommandType.Exec)
         {
             Console.WriteLine($"Exécution de {command.Name}");
@@ -116,8 +111,50 @@ async Task Run()
 
             exec.Start();
         }
+        else
+        {
+            if (command.State == CommandState.ToDelete)
+            {
+                Console.WriteLine($"Suppression de {command.Name}");
+
+                if (File.Exists(command.AdditionalData))
+                {
+                    File.Delete(command.AdditionalData);
+                }
+
+                Console.WriteLine($"{command.Name} supprimé");
+            }
+            else
+            {
+                Console.WriteLine($"Mise à jour de {command.Name}");
+
+                using var client = new HttpClient();
+
+                string url = command.Data;
+                if (command.Type == CommandType.Github)
+                {
+                    client.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
+
+                    var json = await client.GetStringAsync(url);
+                    var jObject = JObject.Parse(json);
+
+                    url = (string)jObject["browser_download_url"];
+                }
+
+
+                using var s = await client.GetStreamAsync(url);
+                using var fs = new FileStream(command.AdditionalData, FileMode.OpenOrCreate);
+                await s.CopyToAsync(fs);
+
+                Console.WriteLine($"{command.Name} mis à jour");
+            }
+        }
+
+        Console.WriteLine("---------------------");
+        Console.WriteLine();
     }
 
+    Console.WriteLine("Toutes les commandes ont été exécutées");
     Console.ReadLine();
 }
 
@@ -133,7 +170,7 @@ void CustomWriteLine(Command command)
         additionalText = (command.State == CommandState.Selected) ? "(mise à jour)" : (command.State == CommandState.ToDelete) ? "(suppression)" : string.Empty;
 
     var text = $"{command.ListNumber}. {command.Name} {additionalText}";
-    
+
 
     Console.WriteLine(text);
 
