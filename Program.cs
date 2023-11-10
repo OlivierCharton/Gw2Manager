@@ -30,6 +30,7 @@ while (isUserSelectingCommands)
 
 await Run();
 
+End();
 
 void ShowMenu(bool clear = false)
 {
@@ -45,6 +46,15 @@ void ShowMenu(bool clear = false)
     {
         CustomWriteLine(command);
     }
+
+    if (!clear && globalSettings.AutoStartTimer > 0)
+    {
+        Console.WriteLine();
+        Console.WriteLine($"Démarrage automatique dans {globalSettings.AutoStartTimer / 1000} secondes.");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("Appuyer sur Entrée pour valider les commandes.");
 }
 
 bool SelectEntry(int maxTime = -1)
@@ -138,7 +148,7 @@ async Task Run()
                     var json = await client.GetStringAsync(url);
                     var jObject = JObject.Parse(json);
 
-                    url = (string)jObject["browser_download_url"];
+                    url = (string)jObject.SelectToken("assets[0].browser_download_url");
                 }
 
 
@@ -155,7 +165,21 @@ async Task Run()
     }
 
     Console.WriteLine("Toutes les commandes ont été exécutées");
-    Console.ReadLine();
+}
+
+void End()
+{
+    Console.WriteLine();
+    Console.WriteLine("Fermeture de la fenêtre dans 3 secondes");
+
+    Timer t = new Timer(CloseProgram, null, 3000, 3000);
+
+    Console.Read();
+}
+
+void CloseProgram(object state)
+{
+    Environment.Exit(0);
 }
 
 void CustomWriteLine(Command command)
@@ -169,7 +193,7 @@ void CustomWriteLine(Command command)
     if (command.Type != CommandType.Exec)
         additionalText = (command.State == CommandState.Selected) ? "(mise à jour)" : (command.State == CommandState.ToDelete) ? "(suppression)" : string.Empty;
 
-    var text = $"{command.ListNumber}. {command.Name} {additionalText}";
+    var text = $"[{command.ListNumber}] {command.Name} {additionalText}";
 
 
     Console.WriteLine(text);
