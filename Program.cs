@@ -3,6 +3,7 @@ using Gw2Manager.Utils;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 
 Console.Title = "Gw2 Manager";
 
@@ -143,6 +144,10 @@ async Task Run()
                 Console.WriteLine($"Mise à jour de {command.Name}");
 
                 using var client = new HttpClient();
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+                {
+                    NoCache = true
+                };
 
                 string url = command.Data;
                 if (command.Type == CommandType.Github)
@@ -155,10 +160,9 @@ async Task Run()
                     url = (string)jObject.SelectToken("assets[0].browser_download_url");
                 }
 
-
-                using var s = await client.GetStreamAsync(url);
-                using var fs = new FileStream(command.AdditionalData, FileMode.OpenOrCreate);
-                await s.CopyToAsync(fs);
+                byte[] info = await client.GetByteArrayAsync(url);
+                using FileStream fs = File.Create(command.AdditionalData);
+                await fs.WriteAsync(info);
 
                 Console.WriteLine($"{command.Name} mis à jour");
             }
