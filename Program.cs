@@ -17,6 +17,7 @@ var commandsFromSettings = config.GetSection("Commands").Get<List<Command>>() ??
 List<Command> commands = new();
 for (int i = 0; i < commandsFromSettings.Count; i++)
 {
+    commandsFromSettings[i].ListNumber = i + 1;
     commandsFromSettings[i].Keys = GetKeysForIndex(i);
     commands.Add(commandsFromSettings[i]);
 }
