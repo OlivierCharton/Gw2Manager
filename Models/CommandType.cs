@@ -5,5 +5,6 @@
         Exec,
         Github,
         Url,
+        Module
     }
 }

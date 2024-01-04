@@ -139,6 +139,12 @@ async Task Run()
 
                 Console.WriteLine($"{command.Name} supprimé");
             }
+            else if (command.Type == CommandType.Module)
+            {
+                Console.WriteLine($"Mise à jour de {command.Name}");
+
+                File.Copy(command.Data, command.AdditionalData);
+            }
             else
             {
                 Console.WriteLine($"Mise à jour de {command.Name}");
