@@ -143,7 +143,7 @@ async Task Run()
             {
                 Console.WriteLine($"Mise à jour de {command.Name}");
 
-                File.Copy(command.Data, command.AdditionalData);
+                File.Copy(command.Data, command.AdditionalData, true);
             }
             else
             {
